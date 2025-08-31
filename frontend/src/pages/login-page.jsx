@@ -70,7 +70,7 @@ const LoginPage = () => {
                 />
 
                 <Button
-                  className="border rounded-lg bg-whitesmoke text-black w-full mt-4 h-8"
+                  className="rounded-lg bg-accent active:bg-accent/80 text-white w-full mt-4 h-8 focus:outline-white"
                   type="submit"
                 >
                   Login

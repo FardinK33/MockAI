@@ -3,7 +3,7 @@ import cors from "cors";
 
 import { config } from "./config/env-config.js";
 import connectToDB from "./db/connectToDB.js";
-import interviewRoutes from "./routes/interview-routes.js";
+import { authRoutes, interviewRoutes } from "./routes/index.js";
 
 const app = express();
 
@@ -21,6 +21,7 @@ app.use(express.json());
 //                /:id/stop-interview -> manually stoping the interview
 
 app.use("/api/interview", interviewRoutes);
+app.use("/api/auth", authRoutes);
 
 app.listen(config.PORT, async () => {
   await connectToDB();

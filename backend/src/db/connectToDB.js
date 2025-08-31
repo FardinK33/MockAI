@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { config } from "../config/env-config";
+import { config } from "../config/env-config.js";
 
-export default connectToDB = async () => {
+const connectToDB = async () => {
   try {
     await mongoose.connect(config.MONGO_URI);
     console.log("Connected to MongoDB");
@@ -9,3 +9,5 @@ export default connectToDB = async () => {
     console.log("Error connecting to MongoDB:", error.message);
   }
 };
+
+export default connectToDB;

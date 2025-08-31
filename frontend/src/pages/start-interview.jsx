@@ -105,7 +105,7 @@ const StartInterview = () => {
 
       {/* Main Content */}
       <div className="relative text-white max-w-7xl mx-auto min-h-screen flex flex-col justify-center items-center p-4 sm:p-10">
-        <h1 className="text-2xl sm:text-3xl text-accent font-medium mb-6 text-center">
+        <h1 className="text-2xl sm:text-3xl text-white font-medium mb-6 text-center">
           Job Details
         </h1>
 
@@ -145,7 +145,7 @@ const StartInterview = () => {
                 <Button
                   type="submit"
                   disabled={!permissionGranted || loading}
-                  className="bg-accent text-black/80 font-medium w-full rounded-md p-2"
+                  className="bg-accent text-white/80 font-medium w-full rounded-md p-2"
                 >
                   {loading ? "Starting..." : "Start Interview"}
                 </Button>
