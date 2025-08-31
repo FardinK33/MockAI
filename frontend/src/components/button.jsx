@@ -6,7 +6,7 @@ const Button = ({ children, className = "", type = "button", ...props }) => {
     <button
       type={type}
       className={clsx(
-        "flex items-center cursor-pointer justify-center px-4 py-1.5 transition-colors  disabled:opacity-50 disabled:cursor-not-allowed",
+        "flex items-center cursor-pointer justify-center transition-colors  disabled:opacity-50 disabled:cursor-not-allowed",
         className
       )}
       {...props}

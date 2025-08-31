@@ -19,26 +19,34 @@ const InterviewPage = () => {
   } = useInterviewController();
 
   return (
-    <div className="bg-black border p-10 h-screen w-full flex md:flex-row justify-center items-center">
-      <div className="flex-1 flex items-center h-full rounded-3xl">
-        <div className="bg-neutral-800 w-full h-[100%] rounded-xl overflow-hidden">
-          <VideoStream />
-        </div>
+    <div className="border p-10 h-screen w-full relative overflow-y-scroll flex items-center justify-center">
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_50%,#000_40%,#63e_100%)]"></div>
       </div>
-      <div className="h-full border  w-0.5"></div>
-      <div className="flex-1 flex flex-col justify-around items-center gap-2 h-full rounded-3xl">
-        <div className="bg-neutral-800 w-full h-[100%] rounded-xl flex flex-col justify-center items-center">
-          <div className="p-10 rounded-full bg-gradient-to-b from-violet-800 to-pink-800 flex items-center justify-center text-whitesmoke text-7xl shadow-sm shadow-muted-foreground">
-            <RiRobot3Line />
-          </div>
-          <div className=" mt-20 text-white italic text-xl font-semiboldbold">
-            {statusText}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 grid-rows-2 md:grid-rows-1 w-full h-full overflow-y-auto">
+        <div className="flex-1 flex items-center h-full rounded-3xl">
+          <div className="bg-neutral-800 w-full h-[100%] rounded-xl overflow-hidden">
+            <VideoStream />
           </div>
         </div>
+        <div className="flex-1 flex flex-col justify-around items-center gap-2 h-full rounded-3xl overflow-y-auto">
+          <div className=" w-full h-[100%] rounded-xl flex flex-col justify-center items-center relative overflow-hidden">
+            <div class="absolute inset-0 -z-10">
+              <div class="absolute inset-0 z-0 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_50%,#000_20%,#63e_100%)]"></div>
+            </div>
+            <div className="p-5 rounded-full bg-gradient-to-b from-violet-800 to-pink-800 flex items-center justify-center text-whitesmoke text-3xl md:text-5xl shadow-sm shadow-muted-foreground">
+              <RiRobot3Line />
+            </div>
+            <div className="mt-2 text-white italic text-base font-semiboldbold">
+              {statusText}
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="absolute bottom-10 text-2xl rounded-full flex justify-center gap-7 bg-black p-4">
+      <div className="absolute bottom-10 lg:text-2xl rounded-full flex justify-center gap-7 bg-black p-4 items-center">
         <Button
-          className={`bg-sky-700 text-gray-400 rounded-full h-14`}
+          className={`bg-sky-700 text-gray-400 rounded-full p-3`}
           onClick={handleSpeakClick}
           disabled={isSpeaking || !interviewStatus}
         >
@@ -46,7 +54,7 @@ const InterviewPage = () => {
         </Button>
         {listening && !isSpeaking ? (
           <Button
-            className={`bg-green-500 text-gray-400 rounded-full h-14`}
+            className={`bg-green-500 text-gray-400 rounded-full p-3`}
             onClick={handleMicClick}
             disabled={!interviewStatus}
           >
@@ -54,7 +62,7 @@ const InterviewPage = () => {
           </Button>
         ) : (
           <Button
-            className={`"bg-gray-800" text-gray-400 rounded-full h-14`}
+            className={`"bg-gray-800" text-gray-400 rounded-full p-3`}
             disabled
           >
             <CiMicrophoneOff />
@@ -62,7 +70,7 @@ const InterviewPage = () => {
         )}
 
         <Button
-          className="bg-red-600 rounded-full h-14 hover:bg-red-700"
+          className="bg-red-600 rounded-full hover:bg-red-700 p-3"
           onClick={handleStopClick}
           disabled={!interviewStatus}
         >

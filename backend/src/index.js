@@ -1,6 +1,9 @@
 import express from "express";
-import interviewRoutes from "./routes/interview-routes.js";
 import cors from "cors";
+
+import { config } from "./config/env-config.js";
+import connectToDB from "./db/connectToDB.js";
+import interviewRoutes from "./routes/interview-routes.js";
 
 const app = express();
 
@@ -19,6 +22,7 @@ app.use(express.json());
 
 app.use("/api/interview", interviewRoutes);
 
-app.listen(3000, async () => {
-  console.log("Server Started on PORT : 3000");
+app.listen(config.PORT, async () => {
+  await connectToDB();
+  console.log("Server Started on PORT :", config.PORT);
 });

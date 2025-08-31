@@ -88,13 +88,31 @@ const StartInterview = () => {
   }, []);
 
   return (
-    <div className="h-screen bg-neutral-950 p-5 text-sm py-15">
-      <div className="text-white w-4xl mx-auto h-full flex flex-col justify-center items-center p-10 relative">
-        <h1 className="text-3xl text-accent font-medium">Job Details</h1>
+    <div className="min-h-screen relative p-4 sm:p-5 text-sm">
+      {/* Background Grid */}
+      <div className="absolute inset-0">
+        <div
+          className="relative h-full w-full bg-slate-950 
+      [&>div]:absolute 
+      [&>div]:inset-0 
+      [&>div]:bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] 
+      [&>div]:bg-[size:14px_24px] 
+      [&>div]:[mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"
+        >
+          <div></div>
+        </div>
+      </div>
 
-        <div className="flex-1 flex h-full justify-evenly w-full py-3">
-          <div className="flex-1 flex items-center justify-center">
-            <form className="mx-auto w-80 max-w-xl" onSubmit={handleSubmit}>
+      {/* Main Content */}
+      <div className="relative text-white max-w-7xl mx-auto min-h-screen flex flex-col justify-center items-center p-4 sm:p-10">
+        <h1 className="text-2xl sm:text-3xl text-accent font-medium mb-6 text-center">
+          Job Details
+        </h1>
+
+        <div className="flex flex-col lg:flex-row items-center justify-evenly w-full gap-8">
+          {/* Form Section */}
+          <div className="w-full lg:w-1/2 flex justify-center">
+            <form className="w-full max-w-md" onSubmit={handleSubmit}>
               <Input
                 label="Job Role"
                 name="jobRole"
@@ -123,12 +141,11 @@ const StartInterview = () => {
                 placeholder="Brief job description"
                 onChange={handleChange}
               />
-
               <div className="mt-6">
                 <Button
                   type="submit"
                   disabled={!permissionGranted || loading}
-                  className="bg-accent text-black/80 font-medium w-full"
+                  className="bg-accent text-black/80 font-medium w-full rounded-md p-2"
                 >
                   {loading ? "Starting..." : "Start Interview"}
                 </Button>
@@ -136,8 +153,9 @@ const StartInterview = () => {
             </form>
           </div>
 
-          <div className="flex-1 flex flex-col items-center justify-center gap-5">
-            <div className="h-60 w-96 rounded-lg overflow-hidden shadow-sm">
+          {/* Video Section */}
+          <div className="w-full lg:w-1/2 flex flex-col items-center gap-4">
+            <div className="w-full max-w-md h-60 rounded-lg overflow-hidden shadow-sm">
               <video
                 ref={videoRef}
                 autoPlay
@@ -146,7 +164,7 @@ const StartInterview = () => {
               />
             </div>
             {!permissionGranted && (
-              <p className="text-red-400 text-sm">
+              <p className="text-red-400 text-sm text-center">
                 Please allow camera and microphone access to proceed.
               </p>
             )}

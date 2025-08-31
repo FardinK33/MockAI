@@ -1,11 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
-import dotenv from "dotenv";
-import { systemPrompt } from "../utils/prompt.js";
 
-dotenv.config();
+import { systemPrompt } from "../utils/prompt.js";
+import { config } from "./env-config.js";
 
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_KEY,
+  apiKey: config.GEMINI_KEY,
 });
 
 // Simple in-memory session manager

@@ -31,28 +31,3 @@ export const useTextToSpeech = () => {
 
   return { speak, isSpeaking };
 };
-
-// // useTextToSpeech.js
-// import { useState, useEffect } from 'react';
-
-// export function useTextToSpeech() {
-//   const [isSpeaking, setIsSpeaking] = useState(false);
-
-//   const speak = (text) => {
-//     return new Promise((resolve) => {
-//       const utterance = new SpeechSynthesisUtterance(text);
-//       utterance.onstart = () => setIsSpeaking(true);
-//       utterance.onend = () => {
-//         setIsSpeaking(false);
-//         resolve();
-//       };
-//       speechSynthesis.speak(utterance);
-//     });
-//   };
-
-//   useEffect(() => {
-//     return () => speechSynthesis.cancel(); // Clean up on unmount
-//   }, []);
-
-//   return { speak, isSpeaking };
-// }
