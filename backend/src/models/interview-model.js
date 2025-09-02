@@ -32,30 +32,8 @@ const interviewSchema = new mongoose.Schema(
       default: Date.now,
     },
     analysis: {
-      summary: {
-        type: String,
-        required: true,
-      },
-      strengths: [{ type: String, trim: true }],
-      weaknesses: [{ type: String, trim: true }],
-      tags: [{ type: String, trim: true }],
-      scores: {
-        communication: {
-          type: Number,
-          min: 0,
-          max: 5,
-        },
-        problemSolving: {
-          type: Number,
-          min: 0,
-          max: 5,
-        },
-        technicalSkills: {
-          type: Number,
-          min: 0,
-          max: 5,
-        },
-      },
+      type: Object,
+      default: {},
     },
     overallRating: {
       type: Number,

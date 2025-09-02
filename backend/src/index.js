@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import { config } from "./config/env-config.js";
 import connectToDB from "./db/connectToDB.js";
@@ -14,14 +15,10 @@ app.use(
   })
 );
 app.use(express.json());
-// '/api/auth'
-// '/api/interview
-//      /interview/start-interview
-//                /:id/message -> get user's response
-//                /:id/stop-interview -> manually stoping the interview
+app.use(cookieParser());
 
-app.use("/api/interview", interviewRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/interview", interviewRoutes);
 
 app.listen(config.PORT, async () => {
   await connectToDB();

@@ -1,49 +1,75 @@
-import { v4 as uuidv4 } from "uuid";
-
-import { getAIResponse, removeUser } from "../config/gemini-config.js";
+import client from "../config/redis-config.js";
+import { getAIResponse, generateAnalysis } from "../config/gemini-config.js";
 import {
   finalPrompt,
-  generateStructuredAnalysisPrompt,
+  generateInitialPrompt,
+  noAnalysis,
 } from "../utils/prompt.js";
 import { extractJsonSafely } from "../utils/json-parser.js";
-
-const questionsCount = {};
+import Interview from "../models/interview-model.js";
+import Conversation from "../models/conversation-model.js";
 
 export const createInterview = async (req, res) => {
   try {
-    const { interviewDetails } = req.body;
+    const { jobRole, experience, jobDescription, interviewType } = req.body;
 
-    // console.log("Request Received : ", req.body);
-
-    if (!interviewDetails?.trim()) {
+    const userId = req.user?._id;
+    if (
+      !jobRole?.trim() ||
+      !experience?.trim() ||
+      !jobDescription?.trim() ||
+      !interviewType?.trim()
+    ) {
       return res.status(400).json({
-        err: "invalid input.",
+        success: false,
         message: "Input must be a valid non-empty string",
         data: {},
-        success: false,
       });
     }
 
-    const interviewId = uuidv4();
+    const newInterview = await Interview.create({
+      userId,
+      jobRole,
+      experience,
+      jobDescription,
+      interviewType,
+    });
+    const interviewId = newInterview._id.toString();
 
-    const aiResponse = await getAIResponse(interviewId, interviewDetails);
-    // console.log("AI Response : ", aiResponse);
-    questionsCount[interviewId] = 1;
+    const interviewDetails = generateInitialPrompt(
+      jobRole,
+      experience,
+      jobDescription,
+      interviewType
+    );
+
+    const aiResponse = await getAIResponse(
+      userId,
+      interviewId,
+      interviewDetails
+    );
+
+    await Conversation.create({
+      userId,
+      interviewId: interviewId,
+      role: "ai",
+      text: aiResponse,
+    });
+
+    await client.set(`user:${userId}:interview:${interviewId}:count`, 1);
 
     res.status(200).json({
       success: true,
+      message: "new interview created",
       data: {
         id: interviewId,
         text: aiResponse,
       },
-      err: "",
-      message: "new interview created",
     });
   } catch (error) {
     console.log("Error at Create-Interview Controller : ", error.message);
     return res.status(500).json({
       success: false,
-      err: error.message,
       message: "Internal server error",
       data: {},
     });
@@ -52,44 +78,74 @@ export const createInterview = async (req, res) => {
 
 export const generateResponse = async (req, res) => {
   try {
-    const id = req.params.id;
-    let { message } = req.body;
+    const { id: interviewId } = req.params;
+    const userId = req.user._id;
+    const { message } = req.body;
 
-    if (!id || !message?.trim() || !questionsCount[id]) {
+    if (!interviewId || !message?.trim()) {
       return res.status(400).json({
-        err: "Invalid input",
+        success: false,
         message: "Interview ID and Message must be valid",
         data: {},
-        success: false,
       });
     }
 
-    let aiResponse = await getAIResponse(id, message);
+    //`user:${userId}:interview:${interviewId}:count`, 1
+    let count = await client.get(
+      `user:${userId}:interview:${interviewId}:count`
+    );
+
+    if (!count) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Interview",
+        data: {},
+      });
+    }
+
+    count = JSON.parse(count);
+
+    await Conversation.create({
+      userId,
+      interviewId,
+      role: "user",
+      text: message,
+    });
 
     let final = false;
-    if (questionsCount[id] >= 10) {
-      message = finalPrompt;
-      aiResponse = await getAIResponse(id, message);
+    if (count >= 10) {
       final = true;
     }
 
-    questionsCount[id]++;
+    const aiResponse = await getAIResponse(
+      userId,
+      interviewId,
+      message,
+      final && finalPrompt
+    );
+
+    await client.incr(`user:${userId}:interview:${interviewId}:count`);
+
+    await Conversation.create({
+      userId,
+      interviewId,
+      role: "ai",
+      text: aiResponse,
+    });
 
     return res.status(200).json({
       success: true,
+      message: "successfully fetched the AI response",
       data: {
         text: aiResponse,
         isFinal: final,
       },
-      err: "",
-      message: "successfully fetched the AI response",
     });
   } catch (error) {
     console.log("Error at generateResponse controller: ", error.message);
     res.status(500).json({
-      err: error.message,
-      message: "internal server error",
       success: false,
+      message: "internal server error",
       data: {},
     });
   }
@@ -97,20 +153,40 @@ export const generateResponse = async (req, res) => {
 
 export const stopInterview = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: interviewId } = req.params;
+    const userId = req.user._id;
 
-    if (!questionsCount[id]) {
-      return res.status(200).json({
+    let count = await client.get(
+      `user:${userId}:interview:${interviewId}:count`
+    );
+
+    if (!count) {
+      return res.status(400).json({
         success: false,
-        data: {},
-        err: "Invalid Request",
         message: "Interview ID is not Valid",
+        data: {},
       });
     }
 
-    const analysisPrompt = generateStructuredAnalysisPrompt();
+    count = JSON.parse(count);
+    if (count < 5) {
+      // Deleting interview session from redis
+      await client.del(`user:${userId}:interview:${interviewId}:history`);
+      await Interview.findOneAndUpdate(
+        { _id: interviewId, userId },
+        {
+          analysis: noAnalysis.analysis,
+          overallRating: noAnalysis.overallRating,
+        }
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Interview Completed",
+        data: noAnalysis,
+      });
+    }
 
-    const analysis = await getAIResponse(id, analysisPrompt);
+    const analysis = await generateAnalysis(userId, interviewId);
 
     let parsedAnalysis;
     try {
@@ -120,29 +196,52 @@ export const stopInterview = async (req, res) => {
       console.log("Failed to parse AI analysis response : ", analysis);
       return res.status(500).json({
         success: false,
-        err: "Failed to parse AI analysis response",
-        message: "AI response was not valid JSON",
-        data: err,
+        message: analysis,
+        data: {},
       });
     }
 
-    removeUser(id);
-    delete questionsCount[id];
+    await client.del(`user:${userId}:interview:${interviewId}:count`);
+
+    await Interview.findOneAndUpdate(
+      { _id: interviewId, userId },
+      {
+        analysis: parsedAnalysis.analysis,
+        overallRating: parsedAnalysis.overallRating,
+      }
+    );
 
     return res.status(200).json({
       success: true,
-      data: {
-        parsedAnalysis,
-      },
       message: "Analysis Complete",
-      err: "",
+      data: parsedAnalysis,
     });
   } catch (error) {
     console.log("Error at stopInterview controller: ", error.message);
     res.status(500).json({
-      err: error.message,
-      message: "internal server error",
       success: false,
+      message: "Internal Server Error",
+      data: {},
+    });
+  }
+};
+
+export const getAllInterviews = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const interviews = await Interview.find({ userId }).lean();
+
+    return res.status(200).json({
+      success: true,
+      message: "Successfully fetched all interviews",
+      data: interviews,
+    });
+  } catch (error) {
+    console.log("Error at getAllInterview controller: ", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
       data: {},
     });
   }

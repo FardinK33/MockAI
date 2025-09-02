@@ -29,7 +29,7 @@ const conversationSchema = new mongoose.Schema(
 );
 
 // Index for fetching Conversations in order
-conversationSchema.index({ interviewId: 1, timestamps: -1 });
+conversationSchema.index({ userId: 1, interviewId: 1, createdAt: -1 });
 
 const Conversation = mongoose.model("Conversation", conversationSchema);
 

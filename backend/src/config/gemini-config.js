@@ -1,41 +1,60 @@
 import { GoogleGenAI } from "@google/genai";
 
-import { systemPrompt } from "../utils/prompt.js";
+import {
+  generateStructuredAnalysisPrompt,
+  systemPrompt,
+} from "../utils/prompt.js";
 import { config } from "./env-config.js";
+import client from "./redis-config.js";
 
 const ai = new GoogleGenAI({
   apiKey: config.GEMINI_KEY,
 });
 
-// Simple in-memory session manager
-const sessions = new Map();
-// const conversations = {};
+export async function getAIResponse(userId, interviewId, userMessage, prompt) {
+  // Retrieving the Session history with user id to continue interview with context
+  let history = [];
+  const cachedHistory = await client.get(
+    `user:${userId}:interview:${interviewId}:history`
+  );
+  if (cachedHistory) history = JSON.parse(cachedHistory);
 
-function getChatForUser(userId) {
-  if (!sessions.has(userId)) {
-    const chat = ai.chats.create({
-      model: "gemini-2.5-flash",
-      config: {
-        systemInstruction: systemPrompt,
-      },
-      history: [],
-    });
-    sessions.set(userId, chat);
-  }
-  return sessions.get(userId);
-}
+  if (userMessage)
+    history.push({ role: "user", parts: [{ text: userMessage }] });
 
-export async function getAIResponse(userId, userMessage) {
-  // Retrieving the Session Instance with user id to continue interview with context
-  const chat = getChatForUser(userId);
-  const response = await chat.sendMessage({
-    message: userMessage,
+  const chat = ai.chats.create({
+    model: "gemini-2.5-flash",
+    config: {
+      systemInstruction: systemPrompt,
+    },
+    history,
   });
+
+  const response = await chat.sendMessage({
+    message: prompt ? prompt : userMessage,
+  });
+
+  history.push({ role: "model", parts: [{ text: response.text }] });
+
+  await client.setEx(
+    `user:${userId}:interview:${interviewId}:history`,
+    60 * 30,
+    JSON.stringify(history)
+  );
 
   return response.text;
 }
 
-export async function removeUser(userId) {
-  sessions.delete(userId);
-  // delete conversations[userId];
+export async function generateAnalysis(userId, interviewId) {
+  const analysisPrompt = generateStructuredAnalysisPrompt;
+  const aiResponse = await getAIResponse(
+    userId,
+    interviewId,
+    "",
+    analysisPrompt
+  );
+
+  await client.del(`user:${userId}:interview:${interviewId}:history`);
+
+  return aiResponse;
 }
