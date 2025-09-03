@@ -1,17 +1,15 @@
 import { useState } from "react";
-import { generateInitialPrompt } from "../../utils/prompt";
 import useInterviewStore from "../../zustand/interview-store";
 import { useNavigate } from "react-router-dom";
+import * as z from "zod";
+import toast from "react-hot-toast";
 
-const payload = {
-  data: {
-    id: "1fa550e0-7c15-4238-b291-7f182d9c7d41",
-    text: "Hello! My name is Alex, and I'll be conducting your interview today. It's great to have you here. We are looking for a MERN Stack Developer, and I'm excited to learn more about your skills and experience. To start, could you please tell me a bit about what sparked your interest in web development, specifically with the MERN stack, and what excites you most about working with these technologies?",
-  },
-  err: "",
-  message: "new interview created",
-  success: true,
-};
+const interviewFormSchema = z.object({
+  jobRole: z.string("Invalid job role"),
+  experience: z.string("Invalid experience"),
+  interviewType: z.string("Invalid interview type"),
+  jobDescription: z.string("Invalid job description"),
+});
 
 const useStartInterview = () => {
   const [loading, setLoading] = useState(false);
@@ -19,31 +17,58 @@ const useStartInterview = () => {
   const { setCurrentInterviewId, setInterviewStatus, addMessage } =
     useInterviewStore();
 
-  const startInterview = async (formData) => {
+  const startInterview = async ({
+    jobRole,
+    experience,
+    interviewType,
+    jobDescription,
+  }) => {
     try {
-      const interviewDetails = generateInitialPrompt(formData);
       setLoading(true);
+
+      const result = interviewFormSchema.safeParse({
+        jobRole,
+        experience,
+        interviewType,
+        jobDescription,
+      });
+
+      if (!result.success) {
+        const message = result.error.issues[0].message;
+        throw new Error(message);
+      }
 
       const response = await fetch("/api/interview/start-interview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ interviewDetails }),
+        body: JSON.stringify(result.data),
       });
 
-      const data = await response.json();
-      // console.log(data);
-      // const data = payload;
-
-      if (!data.success) {
-        throw new Error(data);
+      if (!response.ok) {
+        throw new Error("Unable to reach backend");
       }
 
-      setCurrentInterviewId(data.data.id);
-      addMessage({ role: "ai", text: data.data.text });
+      const newInterview = await response.json();
+
+      if (!newInterview.success) {
+        throw new Error(newInterview.message);
+      }
+
+      setCurrentInterviewId(newInterview.data.id);
+      addMessage({ role: "ai", text: newInterview.data.text });
       setInterviewStatus(true);
       navigate("/interview");
+      toast.success("New Interview Created", {
+        position: "top-right",
+      });
     } catch (error) {
-      console.error("Error Occured : ", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : "An unexpected error occurred"
+      );
     } finally {
       setLoading(false);
     }

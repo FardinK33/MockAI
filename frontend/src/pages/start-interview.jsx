@@ -7,8 +7,8 @@ import useLogout from "../hooks/auth-hooks/useLogout";
 const initialState = {
   jobRole: "",
   experience: "",
-  jobDescription: "",
   interviewType: "",
+  jobDescription: "",
 };
 
 const StartInterview = () => {
@@ -22,11 +22,6 @@ const StartInterview = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setJobDetails((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const validateForm = () => {
-    const { jobRole, experience, interviewType, jobDescription } = jobDetails;
-    return jobRole && experience && interviewType && jobDescription;
   };
 
   const validateMediaTracks = () => {
@@ -46,11 +41,6 @@ const StartInterview = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      alert("Please fill all fields before starting the interview.");
-      return;
-    }
 
     if (!validateMediaTracks()) {
       alert("Camera and Mic must be active to proceed.");
@@ -96,7 +86,7 @@ const StartInterview = () => {
         <Button
           disabled={isLogout}
           className="bg-blue-600 text-white/80 hover:bg-blue-700 font-medium w-full rounded-md p-2 px-4"
-          onClick={() => logout()}
+          onClick={async () => await logout()}
         >
           {isLogout ? "Logging Out..." : "Logout"}
         </Button>
