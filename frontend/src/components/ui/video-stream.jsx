@@ -28,7 +28,7 @@ const VideoStream = ({ muted = true }) => {
       // Cleanup stream when the component unmounts
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
-        stream = null; // Clear reference
+        setStream(null); // Clear reference
       }
     };
   }, []); // Effect only runs once

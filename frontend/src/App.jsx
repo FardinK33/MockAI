@@ -1,17 +1,51 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
-import InterviewPage from "./pages/interview-page";
-import InterviewAnalysis from "./pages/interview-analysis-page";
-import LoginPage from "./pages/login-page";
-import StartInterview from "./pages/start-interview";
+import { PrivateRoute, PublicRoute } from "./components";
+import Loader from "./pages/loader";
+
+const LoginPage = lazy(() => import("./pages/login-page"));
+const StartInterview = lazy(() => import("./pages/start-interview"));
+const InterviewPage = lazy(() => import("./pages/interview-page"));
+const AnalysisPage = lazy(() => import("./pages/analysis-page"));
 
 const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<StartInterview />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/interview" element={<InterviewPage />} />
-      <Route path="/analysis" element={<InterviewAnalysis />} />
-    </Routes>
+    <Suspense fallback={<Loader />}>
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <StartInterview />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/interview"
+          element={
+            <PrivateRoute>
+              <InterviewPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/analysis"
+          element={
+            <PrivateRoute>
+              <AnalysisPage />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 };
 

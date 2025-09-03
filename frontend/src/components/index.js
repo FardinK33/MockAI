@@ -1,6 +1,10 @@
-export { default as Button } from "./button";
-export { default as Input } from "./input";
-export { default as Scores } from "./scores";
-export { default as Tags } from "./tags";
-export { default as TextArea } from "./text-area";
-export { default as VideoStream } from "./video-stream";
+export { default as Button } from "./ui/button";
+export { default as Input } from "./ui/input";
+export { default as Scores } from "./ui/scores";
+export { default as Tags } from "./ui/tags";
+export { default as TextArea } from "./ui/text-area";
+export { default as VideoStream } from "./ui/video-stream";
+export { default as SignupForm } from "./forms/signup-form";
+export { default as LoginForm } from "./forms/login-form";
+export { default as PrivateRoute } from "./routes/private-route";
+export { default as PublicRoute } from "./routes/public-route";

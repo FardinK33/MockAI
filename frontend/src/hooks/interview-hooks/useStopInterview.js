@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useInterviewStore from "../zustand/interview-store";
+import useInterviewStore from "../../zustand/interview-store";
 
 const useStopInterview = () => {
   const [loading, setLoading] = useState(false);

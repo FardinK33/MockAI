@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useInterviewStore from "../zustand/interview-store";
+import useInterviewStore from "../../zustand/interview-store";
 
 const useSendMessage = () => {
   const [loading, setLoading] = useState(false);

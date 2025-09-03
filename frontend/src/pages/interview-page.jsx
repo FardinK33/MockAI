@@ -1,5 +1,5 @@
 import { Button, VideoStream } from "../components";
-import { useInterviewController } from "../hooks/useInterviewController";
+import { useInterviewController } from "../hooks/interview-hooks/useInterviewController";
 
 import { RiRobot3Line } from "react-icons/ri";
 import { MdCallEnd } from "react-icons/md";

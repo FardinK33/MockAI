@@ -5,7 +5,7 @@ import SpeechRecognition, {
 import { useTextToSpeech } from "./useTextToSpeech";
 import useSendMessage from "./useSendMessage";
 import useStopInterview from "./useStopInterview";
-import useInterviewStore from "../zustand/interview-store";
+import useInterviewStore from "../../zustand/interview-store";
 
 const AI_STATES = {
   SPEAKING: "Speaking",

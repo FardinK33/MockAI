@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Input, TextArea } from "../components";
-import useStartInterview from "../hooks/useStartInterview";
+import useStartInterview from "../hooks/interview-hooks/useStartInterview";
+import useLogout from "../hooks/auth-hooks/useLogout";
 
 // Optional: move this to types.ts or schema file
 const initialState = {
@@ -16,6 +17,7 @@ const StartInterview = () => {
   const videoRef = useRef(null);
   const mediaStreamRef = useRef(null);
   const { startInterview, loading } = useStartInterview();
+  const { loading: isLogout, logout } = useLogout();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,6 +91,17 @@ const StartInterview = () => {
 
   return (
     <div className="min-h-screen relative p-4 sm:p-5 text-sm">
+      {/* Logout Button */}
+      <div className="absolute top-5 right-5 md:top-10 md:right-10 z-10">
+        <Button
+          disabled={isLogout}
+          className="bg-blue-600 text-white/80 hover:bg-blue-700 font-medium w-full rounded-md p-2 px-4"
+          onClick={() => logout()}
+        >
+          {isLogout ? "Logging Out..." : "Logout"}
+        </Button>
+      </div>
+
       {/* Background Grid */}
       <div className="absolute inset-0">
         <div
@@ -104,7 +117,7 @@ const StartInterview = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative text-white max-w-7xl mx-auto min-h-screen flex flex-col justify-center items-center p-4 sm:p-10">
+      <div className="relative text-white max-w-7xl mx-auto h-full flex flex-col justify-center items-center p-4 sm:p-10">
         <h1 className="text-2xl sm:text-3xl text-white font-medium mb-6 text-center">
           Job Details
         </h1>

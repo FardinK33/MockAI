@@ -1,20 +1,10 @@
 import { useState } from "react";
 import bgImage from "../assets/wave-bg.jpg";
 import { RiRobot3Line } from "react-icons/ri";
-import { Button, Input } from "../components";
+import { LoginForm, SignupForm } from "../components/index";
 
 const LoginPage = () => {
-  const [user, setUser] = useState({ username: "", password: "" });
-
-  const handleChange = (e) => {
-    const name = e.target.name;
-    setUser((prev) => ({ ...prev, [name]: e.target.value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(user);
-  };
+  const [newUser, setNewUser] = useState(false);
 
   return (
     <div
@@ -36,50 +26,51 @@ const LoginPage = () => {
         </div>
 
         {/* Right Side (Login Form) */}
-        <div className="relative flex flex-col justify-around p-6 sm:p-8 md:border-2 border-white/50 rounded-2xl md:rounded-l-none overflow-hidden bg-black/80 md:bg-black/90">
+        <div className="relative flex flex-col justify-around  md:border-2 border-white/50 rounded-2xl md:rounded-l-none overflow-hidden bg-black/80 md:bg-black/90">
           {/* Radial Gradient Background */}
-          <div class="absolute inset-0 hidden">
-            <div class="absolute inset-0 z-0 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
+          <div className="absolute inset-0 md:hidden">
+            <div className="absolute inset-0 z-0 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
           </div>
 
           {/* Content */}
-          <div className="z-10 relative">
-            <div className="text-5xl p-2 rounded-full flex justify-center">
+          <div className="z-10 relative overflow-y-auto p-5">
+            <div className="text-4xl md:text-5xl p-2 rounded-full flex justify-center">
               <RiRobot3Line />
             </div>
-            <div className="mt-6 mx-auto w-full max-w-xs sm:max-w-sm">
-              <p className="text-2xl sm:text-3xl font-general-sans font-medium text-center mb-4">
+            <div
+              className={`${newUser ? "mt-3" : "mt-6"} mx-auto w-full max-w-xs sm:max-w-sm`}
+            >
+              <p className="text-2xl sm:text-3xl font-general-sans font-medium text-center">
                 Welcome Back
               </p>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <Input
-                  name="username"
-                  label="Email"
-                  type="text"
-                  placeholder="username"
-                  className=" border-white/30 placeholder:text-off-white/50"
-                  onChange={handleChange}
-                />
-                <Input
-                  name="password"
-                  label="Password"
-                  type="password"
-                  placeholder="password"
-                  className="border-white/30 placeholder:text-off-white/50"
-                  onChange={handleChange}
-                />
-
-                <Button
-                  className="rounded-lg bg-accent active:bg-accent/80 text-white w-full mt-4 h-8 focus:outline-white"
-                  type="submit"
-                >
-                  Login
-                </Button>
-              </form>
-              <p className="mt-6 text-center text-sm">
-                Don't have an account?{" "}
-                <span className="underline cursor-pointer">Sign up</span>
-              </p>
+              {newUser ? (
+                <>
+                  <SignupForm />
+                  <p className="mt-6 text-center text-sm">
+                    Already have an account?{" "}
+                    <span
+                      className="underline cursor-pointer "
+                      onClick={() => setNewUser((prev) => !prev)}
+                    >
+                      Log in
+                    </span>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <LoginForm />
+                  <p className="mt-6 text-center text-sm">
+                    Don't have an account?{" "}
+                    <span
+                      className="underline cursor-pointer"
+                      onClick={() => setNewUser((prev) => !prev)}
+                      z
+                    >
+                      Sign up
+                    </span>
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

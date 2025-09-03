@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Scores, Tags } from "../components";
 import useInterviewStore from "../zustand/interview-store";
 
-const InterviewAnalysis = () => {
+const AnalysisPage = () => {
   const { result } = useInterviewStore();
   const navigate = useNavigate();
 
@@ -133,4 +133,4 @@ const InterviewAnalysis = () => {
   );
 };
 
-export default InterviewAnalysis;
+export default AnalysisPage;

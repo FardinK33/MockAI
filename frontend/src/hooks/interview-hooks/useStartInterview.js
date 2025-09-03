@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { generateInitialPrompt } from "../utils/prompt";
-import useInterviewStore from "../zustand/interview-store";
+import { generateInitialPrompt } from "../../utils/prompt";
+import useInterviewStore from "../../zustand/interview-store";
 import { useNavigate } from "react-router-dom";
 
 const payload = {
