@@ -3,6 +3,8 @@ import { Button, Input, TextArea } from "../components";
 import useStartInterview from "../hooks/interview-hooks/useStartInterview";
 import useLogout from "../hooks/auth-hooks/useLogout";
 import toast from "react-hot-toast";
+import InstructionsModal from "../components/ui/instruction-modal";
+import { HiInformationCircle } from "react-icons/hi2";
 
 const initialState = {
   jobRole: "",
@@ -12,6 +14,7 @@ const initialState = {
 };
 
 const StartInterview = () => {
+  const [showInstructions, setShowInstructions] = useState(true);
   const [jobDetails, setJobDetails] = useState(initialState);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const videoRef = useRef(null);
@@ -81,11 +84,14 @@ const StartInterview = () => {
 
   return (
     <div className="min-h-screen relative p-4 sm:p-5 text-sm">
+      {showInstructions && (
+        <InstructionsModal onClose={() => setShowInstructions(false)} />
+      )}
       {/* Logout Button */}
       <div className="absolute top-5 right-5 md:top-10 md:right-10 z-10">
         <Button
-          disabled={isLogout}
-          className="bg-blue-600 text-white/80 hover:bg-blue-700 font-medium w-full rounded-md p-2 px-4"
+          disabled={isLogout || loading}
+          className="bg-neutral-800 text-white/80 hover:bg-neutral-900 font-medium w-full rounded-md p-2 px-4"
           onClick={async () => await logout()}
         >
           {isLogout ? "Logging Out..." : "Logout"}
@@ -108,6 +114,18 @@ const StartInterview = () => {
 
       {/* Main Content */}
       <div className="relative text-white max-w-7xl mx-auto h-full flex flex-col justify-center items-center p-4 sm:p-10">
+        <div
+          className="absolute right-5 bottom-10 text-3xl text-gray-700 hover:text-gray-600 cursor-pointer rounded-full group"
+          onClick={() => setShowInstructions(true)}
+        >
+          <HiInformationCircle />
+
+          {/* Tooltip */}
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs opacity-0 group-hover:opacity-100 bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg z-50 transition-opacity duration-200 pointer-events-none">
+            Show Instructions
+          </div>
+        </div>
+
         <h1 className="text-2xl sm:text-3xl text-white font-medium mb-6 text-center">
           Job Details
         </h1>
@@ -134,7 +152,7 @@ const StartInterview = () => {
                 label="Interview Type"
                 name="interviewType"
                 value={jobDetails.interviewType}
-                placeholder="Technical / Behavioral"
+                placeholder="Technical / HR"
                 onChange={handleChange}
               />
               <TextArea

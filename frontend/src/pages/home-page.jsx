@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button, ListItem } from "../components";
 import useLogout from "../hooks/auth-hooks/useLogout";
-import useGetInterviews from "../hooks/interview-hooks/useUserInterviews";
+import useGetInterviews from "../hooks/interview-hooks/useGetInterviews";
 import useUserStore from "../zustand/user-store";
 
 const Homepage = () => {
@@ -10,14 +10,22 @@ const Homepage = () => {
   const { loading } = useGetInterviews();
   const previousInterviews = useUserStore((state) => state.previousInterviews);
 
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <div className="h-screen bg-neutral-950 flex flex-col p-4 gap-3">
-      {/* Top Bar */}
-      <div className="flex justify-end w-full items-center">
+      {/* Gradient Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
+      </div>
+      {/* Logout Button */}
+      <div className="flex justify-end w-full items-center z-10">
         <Button
           disabled={isLogout}
           className="border border-neutral-800 text-white/80 hover:bg-neutral-800 font-medium font-general-sans rounded-md p-2 px-4"
-          onClick={async () => await logout()}
+          onClick={handleLogout}
         >
           {isLogout ? "Logging Out..." : "Logout"}
         </Button>
@@ -56,13 +64,13 @@ const Homepage = () => {
       </div>
 
       {/* Interview List Container */}
-      <div className="border border-neutral-800 rounded-lg w-full flex-1 min-h-0 overflow-y-auto divide-y divide-neutral-800 mt-4">
+      <div className="border border-neutral-800 rounded-lg w-full flex-1 min-h-0 overflow-y-auto divide-y divide-neutral-800 mt-4 z-0">
         {loading ? (
-          <div className="text-white text-center py-10">
+          <div className="text-white text-center py-10 flex items-center justify-center h-full text-xl font-medium font-general-sans">
             Loading interviews...
           </div>
         ) : previousInterviews.length === 0 ? (
-          <div className="text-white text-center py-10">
+          <div className="text-white text-center py-10 flex items-center justify-center h-full text-xl font-general-sans">
             Let's Start giving Mock Interviews.
           </div>
         ) : (

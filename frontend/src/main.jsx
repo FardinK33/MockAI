@@ -13,3 +13,13 @@ createRoot(document.getElementById("root")).render(
     </AuthContextProvider>
   </BrowserRouter>
 );
+
+window.addEventListener("DOMContentLoaded", () => {
+  const splash = document.getElementById("splash-screen");
+  if (splash) {
+    splash.style.opacity = "0";
+    setTimeout(() => {
+      splash.remove();
+    }, 400);
+  }
+});

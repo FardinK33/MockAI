@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Scores, Tags } from "../components";
 import useInterviewStore from "../zustand/interview-store";
 import toast from "react-hot-toast";
+import start from "../assets/star.png";
 
 const AnalysisPage = () => {
   const { result } = useInterviewStore();
@@ -47,8 +48,9 @@ const AnalysisPage = () => {
             <h1 className="text-4xl md:text-5xl font-semibold text-[#f3ddc2] tracking-wide">
               Analysis
             </h1>
-            <div className="text-xl md:text-2xl font-semibold">
-              {result.overallRating} ✨
+            <div className="text-xl md:text-2xl font-semibold flex gap-3 items-center justify-center">
+              {result.overallRating} / 5{" "}
+              <img src={start} className="size-5 mb-1.5" />
             </div>
           </div>
           <div className="border w-full mt-2"></div>
@@ -130,7 +132,7 @@ const AnalysisPage = () => {
         {/* Button */}
         <div className="flex justify-center items-center pt-6">
           <Button
-            className="bg-off-white hover:bg-off-white/90 rounded-xl text-black font-semibold font-sans cursor-pointer p-2"
+            className="bg-accent hover:bg-accent/90 rounded-xl text-white/80 font-semibold font-sans cursor-pointer p-2"
             onClick={() => navigate("/")}
           >
             Back to Homepage

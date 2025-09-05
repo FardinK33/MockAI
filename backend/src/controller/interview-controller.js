@@ -58,7 +58,11 @@ export const createInterview = async (req, res) => {
       text: aiResponse,
     });
 
-    await client.setEx(redisUtils.getCountKey(userId, interviewId), 60 * 30, 1);
+    await client.setEx(
+      redisUtils.getCountKey(userId, interviewId),
+      60 * 30,
+      "1"
+    );
 
     res.status(200).json({
       success: true,
@@ -230,16 +234,18 @@ export const getAllInterviews = async (req, res) => {
     const userId = req.user._id;
 
     const cachedInterviews = await client.get(
-      redisUtils.getInterviewsKey(userId)
+      redisUtils.getAllInterviewsKey(userId)
     );
 
     let interviews = [];
     if (cachedInterviews) {
       interviews = JSON.parse(cachedInterviews);
     } else {
-      interviews = await Interview.find({ userId }).lean();
+      interviews = await Interview.find({ userId })
+        .sort({ createdAt: -1 })
+        .lean();
       client.setEx(
-        redisUtils.getInterviewsKey(userId),
+        redisUtils.getAllInterviewsKey(userId),
         60 * 2,
         JSON.stringify(interviews)
       );
@@ -262,10 +268,10 @@ export const getAllInterviews = async (req, res) => {
 
 export const getInterview = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: interviewId } = req.params;
     const userId = req.user._id;
 
-    if (!id) {
+    if (!interviewId) {
       return res.status(400).json({
         success: false,
         message: "ID undefined",
@@ -273,7 +279,7 @@ export const getInterview = async (req, res) => {
       });
     }
 
-    const interview = await Interview.findById(id);
+    const interview = await Interview.findById(interviewId);
 
     if (!interview || interview.userId.toString() !== userId) {
       return res.status(400).json({
@@ -283,36 +289,31 @@ export const getInterview = async (req, res) => {
       });
     }
 
-    // Checking Redis for Conversation history
-    const cachedConversation = await client.get(
-      `user:${userId}:interview:${id}:history`
+    const rawConversation = await Conversation.find({
+      userId,
+      interviewId: interview._id,
+    })
+      .select("role text -_id")
+      .sort({ createdAt: 1 });
+
+    const formattedConversation = rawConversation.map((entry) => ({
+      role: entry.role,
+      parts: [{ text: entry.text }],
+    }));
+
+    await client.setEx(
+      redisUtils.getHistoryKey(userId, interviewId),
+      60 * 10,
+      JSON.stringify(formattedConversation)
     );
-
-    let conversation;
-
-    if (cachedConversation) {
-      conversation = JSON.parse(cachedConversation);
-    } else {
-      // Fetching conversation from DB
-      conversation = await Conversation.find({
-        userId,
-        interviewId: interview._id,
-      });
-
-      await client.setEx(
-        `user:${userId}:interview:${id}:history`,
-        60 * 10,
-        JSON.stringify(conversation)
-      );
-    }
 
     return res.status(200).json({
       success: true,
       message: "Interview Details Fetched Successfully",
       data: {
-        id,
+        interviewId,
         status: interview.status,
-        conversation,
+        conversation: rawConversation,
       },
     });
   } catch (error) {

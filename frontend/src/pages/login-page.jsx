@@ -2,6 +2,7 @@ import { useState } from "react";
 import bgImage from "../assets/wave-bg.jpg";
 import { RiRobot3Line } from "react-icons/ri";
 import { LoginForm, SignupForm } from "../components/index";
+import logo from "../assets/logo.png";
 
 const LoginPage = () => {
   const [newUser, setNewUser] = useState(false);
@@ -34,14 +35,17 @@ const LoginPage = () => {
 
           {/* Content */}
           <div className="z-10 relative overflow-y-auto p-5">
-            <div className="text-4xl md:text-5xl p-2 rounded-full flex justify-center">
-              <RiRobot3Line />
+            <div className="rounded-full flex justify-center items-center size-24 mx-auto">
+              <img
+                src={logo}
+                alt="Mock AI Logo"
+                className="object-contain size-full"
+                draggable={false}
+              />
             </div>
-            <div
-              className={`${newUser ? "mt-3" : "mt-6"} mx-auto w-full max-w-xs sm:max-w-sm`}
-            >
+            <div className={`mt-2 mx-auto w-full max-w-xs sm:max-w-sm`}>
               <p className="text-2xl sm:text-3xl font-general-sans font-medium text-center">
-                Welcome Back
+                {newUser ? "Hello There !" : "Welcome Back"}
               </p>
               {newUser ? (
                 <>

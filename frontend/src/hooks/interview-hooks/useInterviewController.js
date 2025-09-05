@@ -16,9 +16,10 @@ const AI_STATES = {
 };
 
 export const useInterviewController = () => {
-  const id = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [statusText, setStatusText] = useState(AI_STATES.SPEAKING);
+  const [isListeningForUI, setIsListeningForUI] = useState(false);
   const { speak, isSpeaking } = useTextToSpeech();
   const { sendMessage } = useSendMessage();
   const { stopInterview } = useStopInterview();
@@ -34,11 +35,12 @@ export const useInterviewController = () => {
 
   useEffect(() => {
     const startInterview = async () => {
-      const lastMsg = conversation[conversation.length - 1];
-      if (lastMsg?.text) {
+      if (conversation.length > 0) {
+        const lastMsg = conversation[conversation.length - 1];
         startLoop(lastMsg.text);
       } else {
         try {
+          setInterviewStatus(true);
           const res = await fetch(`/api/interview/getInterview/${id}`, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -51,13 +53,19 @@ export const useInterviewController = () => {
 
           const interviewData = await res.json();
 
-          if (!interviewData.succes || interviewData.data.status !== "active") {
+          if (!interviewData.success) {
             toast.error(interviewData.message);
             navigate("/");
+            return;
+          }
+
+          if (interviewData.data.status !== "active") {
+            toast.error("Interview has been completed previously.");
+            navigate("/");
+            return;
           }
 
           setCurrentInterviewId(interviewData.data.id);
-          setInterviewStatus(true);
 
           const conversationLength = interviewData.data.conversation.length;
 
@@ -66,7 +74,7 @@ export const useInterviewController = () => {
           }
 
           const lastMessage =
-            interviewData.data.conversation[conversationLength - 1];
+            interviewData.data.conversation[conversationLength - 1].text;
           startLoop(lastMessage);
         } catch (error) {
           toast.error(error.message);
@@ -87,6 +95,7 @@ export const useInterviewController = () => {
       if (interviewStatus) {
         setStatusText(AI_STATES.LISTENING);
         SpeechRecognition.startListening({ continuous: true });
+        setIsListeningForUI(true);
       } else {
         await stopInterview();
       }
@@ -97,11 +106,13 @@ export const useInterviewController = () => {
 
   const handleMicClick = async () => {
     SpeechRecognition.stopListening();
+    setIsListeningForUI(false);
 
     if (!transcript.trim()) {
       setStatusText(AI_STATES.SPEAKING);
       await speak("Couldn't hear you. Please speak closer to the mic.");
       setStatusText(AI_STATES.LISTENING);
+      setIsListeningForUI(true);
       SpeechRecognition.startListening({ continuous: true });
       return;
     }
@@ -124,13 +135,14 @@ export const useInterviewController = () => {
 
   const handleStopClick = async () => {
     SpeechRecognition.stopListening();
+    setIsListeningForUI(false);
     await stopInterview();
   };
 
   return {
     statusText,
     isSpeaking,
-    listening,
+    listening: isListeningForUI,
     handleSpeakClick,
     handleMicClick,
     handleStopClick,

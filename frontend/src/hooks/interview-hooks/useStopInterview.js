@@ -4,7 +4,7 @@ import useInterviewStore from "../../zustand/interview-store";
 import toast from "react-hot-toast";
 
 const useStopInterview = () => {
-  const id = useParams();
+  const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const { currentInterviewId, setInterviewStatus, setResult } =
     useInterviewStore();

@@ -8,6 +8,7 @@ const Homepage = lazy(() => import("./pages/home-page"));
 const StartInterview = lazy(() => import("./pages/start-interview"));
 const InterviewPage = lazy(() => import("./pages/interview-page"));
 const AnalysisPage = lazy(() => import("./pages/analysis-page"));
+const NotFoundPage = lazy(() => import("./pages/not-found-page"));
 
 const App = () => {
   return (
@@ -53,6 +54,7 @@ const App = () => {
             </PrivateRoute>
           }
         />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   );
