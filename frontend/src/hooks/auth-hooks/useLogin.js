@@ -22,11 +22,14 @@ const useLogin = () => {
         throw new Error(message);
       }
 
-      const res = await fetch("/api/auth/login", {
-        headers: { "Content-Type": "application/json" },
-        method: "POST",
-        body: JSON.stringify(result.data),
-      });
+      const res = await fetch(
+        "https://mockai-i25k.onrender.com/api/auth/login",
+        {
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+          body: JSON.stringify(result.data),
+        }
+      );
 
       if (!res.ok) {
         throw new Error("Internal Server Error");

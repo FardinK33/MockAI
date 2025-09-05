@@ -38,11 +38,14 @@ const useStartInterview = () => {
         throw new Error(message);
       }
 
-      const response = await fetch("/api/interview/start-interview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(result.data),
-      });
+      const response = await fetch(
+        "https://mockai-i25k.onrender.com/api/interview/start-interview",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(result.data),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Unable to reach backend");

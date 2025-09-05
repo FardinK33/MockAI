@@ -25,11 +25,14 @@ const useSendMessage = () => {
 
       setLoading(true);
 
-      const res = await fetch(`/api/interview/${currentInterviewId}/message`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
+      const res = await fetch(
+        `https://mockai-i25k.onrender.com/api/interview/${currentInterviewId}/message`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        }
+      );
 
       const AiResponse = await res.json();
       if (!AiResponse.success) {

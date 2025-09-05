@@ -41,10 +41,13 @@ export const useInterviewController = () => {
       } else {
         try {
           setInterviewStatus(true);
-          const res = await fetch(`/api/interview/getInterview/${id}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          });
+          const res = await fetch(
+            `https://mockai-i25k.onrender.com/api/interview/getInterview/${id}`,
+            {
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+            }
+          );
 
           if (!res.ok) {
             toast.error("Unable to reach backend");

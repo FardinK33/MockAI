@@ -15,7 +15,7 @@ const useStopInterview = () => {
       setLoading(true);
       setInterviewStatus(false);
       const res = await fetch(
-        `/api/interview/${currentInterviewId}/stop-interview`,
+        `https://mockai-i25k.onrender.com/api/interview/${currentInterviewId}/stop-interview`,
         {
           headers: { "Content-Type": "application/json" },
           method: "POST",

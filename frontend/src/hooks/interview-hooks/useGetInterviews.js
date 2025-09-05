@@ -10,10 +10,13 @@ const useGetInterviews = () => {
     const getAllInterviews = async () => {
       try {
         setLoading(true);
-        const res = await fetch("/api/interview/get-all", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
+        const res = await fetch(
+          "https://mockai-i25k.onrender.com/api/interview/get-all",
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
 
         if (!res.ok) {
           throw new Error("Unable to reach backend");
