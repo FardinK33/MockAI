@@ -5,10 +5,10 @@ import * as z from "zod";
 import toast from "react-hot-toast";
 
 const interviewFormSchema = z.object({
-  jobRole: z.string("Invalid job role"),
-  experience: z.string("Invalid experience"),
-  interviewType: z.string("Invalid interview type"),
-  jobDescription: z.string("Invalid job description"),
+  jobRole: z.string().nonempty("Invalid job role"),
+  experience: z.string().nonempty("Invalid experience"),
+  interviewType: z.string().nonempty("Invalid interview type"),
+  jobDescription: z.string().nonempty("Invalid job description"),
 });
 
 const useStartInterview = () => {
