@@ -8,6 +8,7 @@ const useInterviewStore = create((set) => ({
   conversation: [],
   addMessage: (message) =>
     set((state) => ({ conversation: [...state.conversation, message] })),
+  setConversation: (history) => set({ conversation: history }),
 
   interviewStatus: false, // true || false
   setInterviewStatus: (status) => set({ interviewStatus: status }),

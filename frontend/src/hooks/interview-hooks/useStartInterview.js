@@ -57,7 +57,7 @@ const useStartInterview = () => {
       setCurrentInterviewId(newInterview.data.id);
       addMessage({ role: "ai", text: newInterview.data.text });
       setInterviewStatus(true);
-      navigate("/interview");
+      navigate(`/interview/${newInterview.data.id}`);
       toast.success("New Interview Created", {
         position: "top-right",
       });

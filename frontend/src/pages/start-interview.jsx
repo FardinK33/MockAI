@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Input, TextArea } from "../components";
 import useStartInterview from "../hooks/interview-hooks/useStartInterview";
 import useLogout from "../hooks/auth-hooks/useLogout";
+import toast from "react-hot-toast";
 
-// Optional: move this to types.ts or schema file
 const initialState = {
   jobRole: "",
   experience: "",
@@ -65,7 +65,7 @@ const StartInterview = () => {
         }
         setPermissionGranted(true);
       } catch (err) {
-        console.error("Media access error:", err);
+        toast.error("Media access error");
         setPermissionGranted(false);
       }
     };

@@ -4,12 +4,14 @@ import {
   createInterview,
   generateResponse,
   getAllInterviews,
+  getInterview,
   stopInterview,
 } from "../controller/interview-controller.js";
 import prtotectRoute from "../middleware/protect-route.js";
 
 const router = Router();
 
+router.get("/getInterview/:id", prtotectRoute, getInterview);
 router.get("/get-all", prtotectRoute, getAllInterviews);
 router.post("/start-interview", prtotectRoute, createInterview);
 router.post("/:id/message", prtotectRoute, generateResponse);

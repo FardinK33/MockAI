@@ -1,12 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { Button, Scores, Tags } from "../components";
 import useInterviewStore from "../zustand/interview-store";
+import toast from "react-hot-toast";
 
 const AnalysisPage = () => {
   const { result } = useInterviewStore();
   const navigate = useNavigate();
 
   if (!result) {
+    setTimeout(() => {
+      if (!result) {
+        navigate("/");
+        toast.error("Error Fetching Ananlysis Report");
+      }
+    }, 3000);
+
     return (
       <div className="min-h-screen py-10 px-4 sm:px-6 md:px-10 w-full relative flex justify-center items-center">
         {/* Background */}

@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useInterviewStore from "../../zustand/interview-store";
+import toast from "react-hot-toast";
 
 const useStopInterview = () => {
+  const id = useParams();
   const [loading, setLoading] = useState(false);
   const { currentInterviewId, setInterviewStatus, setResult } =
     useInterviewStore();
@@ -20,17 +22,20 @@ const useStopInterview = () => {
         }
       );
 
+      if (!res.ok) {
+        throw new Error("Unable to reach backend");
+      }
+
       const data = await res.json();
 
       if (!data.success) {
-        throw new Error(res);
+        throw new Error(data.message);
       }
 
-      console.log(data.data.parsedAnalysis);
-      setResult(data.data.parsedAnalysis);
-      navigate("/analysis");
+      setResult(data.data);
+      navigate(`/analysis/:${id}`);
     } catch (error) {
-      console.error(error);
+      toast.error(error.message);
     } finally {
       setLoading(false);
       setInterviewStatus(false);

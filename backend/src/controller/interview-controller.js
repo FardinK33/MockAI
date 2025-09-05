@@ -8,6 +8,7 @@ import {
 import { extractJsonSafely } from "../utils/json-parser.js";
 import Interview from "../models/interview-model.js";
 import Conversation from "../models/conversation-model.js";
+import redisUtils from "../utils/redis-utils.js";
 
 export const createInterview = async (req, res) => {
   try {
@@ -33,6 +34,7 @@ export const createInterview = async (req, res) => {
       experience,
       jobDescription,
       interviewType,
+      status: "active",
     });
     const interviewId = newInterview._id.toString();
 
@@ -56,7 +58,7 @@ export const createInterview = async (req, res) => {
       text: aiResponse,
     });
 
-    await client.set(`user:${userId}:interview:${interviewId}:count`, 1);
+    await client.setEx(redisUtils.getCountKey(userId, interviewId), 60 * 30, 1);
 
     res.status(200).json({
       success: true,
@@ -90,10 +92,7 @@ export const generateResponse = async (req, res) => {
       });
     }
 
-    //`user:${userId}:interview:${interviewId}:count`, 1
-    let count = await client.get(
-      `user:${userId}:interview:${interviewId}:count`
-    );
+    let count = await client.get(redisUtils.getCountKey(userId, interviewId));
 
     if (!count) {
       return res.status(400).json({
@@ -124,7 +123,7 @@ export const generateResponse = async (req, res) => {
       final && finalPrompt
     );
 
-    await client.incr(`user:${userId}:interview:${interviewId}:count`);
+    await client.incr(redisUtils.getCountKey(userId, interviewId));
 
     await Conversation.create({
       userId,
@@ -156,9 +155,7 @@ export const stopInterview = async (req, res) => {
     const { id: interviewId } = req.params;
     const userId = req.user._id;
 
-    let count = await client.get(
-      `user:${userId}:interview:${interviewId}:count`
-    );
+    let count = await client.get(redisUtils.getCountKey(userId, interviewId));
 
     if (!count) {
       return res.status(400).json({
@@ -171,10 +168,11 @@ export const stopInterview = async (req, res) => {
     count = JSON.parse(count);
     if (count < 5) {
       // Deleting interview session from redis
-      await client.del(`user:${userId}:interview:${interviewId}:history`);
+      await client.del(redisUtils.getHistoryKey(userId, interviewId));
       await Interview.findOneAndUpdate(
         { _id: interviewId, userId },
         {
+          status: "completed",
           analysis: noAnalysis.analysis,
           overallRating: noAnalysis.overallRating,
         }
@@ -201,11 +199,12 @@ export const stopInterview = async (req, res) => {
       });
     }
 
-    await client.del(`user:${userId}:interview:${interviewId}:count`);
+    await client.del(redisUtils.getCountKey(userId, interviewId));
 
     await Interview.findOneAndUpdate(
       { _id: interviewId, userId },
       {
+        status: "completed",
         analysis: parsedAnalysis.analysis,
         overallRating: parsedAnalysis.overallRating,
       }
@@ -230,7 +229,21 @@ export const getAllInterviews = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const interviews = await Interview.find({ userId }).lean();
+    const cachedInterviews = await client.get(
+      redisUtils.getInterviewsKey(userId)
+    );
+
+    let interviews = [];
+    if (cachedInterviews) {
+      interviews = JSON.parse(cachedInterviews);
+    } else {
+      interviews = await Interview.find({ userId }).lean();
+      client.setEx(
+        redisUtils.getInterviewsKey(userId),
+        60 * 2,
+        JSON.stringify(interviews)
+      );
+    }
 
     return res.status(200).json({
       success: true,
@@ -241,6 +254,71 @@ export const getAllInterviews = async (req, res) => {
     console.log("Error at getAllInterview controller: ", error.message);
     res.status(500).json({
       success: false,
+      message: "Internal Server Error",
+      data: {},
+    });
+  }
+};
+
+export const getInterview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "ID undefined",
+        data: {},
+      });
+    }
+
+    const interview = await Interview.findById(id);
+
+    if (!interview || interview.userId.toString() !== userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Interview",
+        data: {},
+      });
+    }
+
+    // Checking Redis for Conversation history
+    const cachedConversation = await client.get(
+      `user:${userId}:interview:${id}:history`
+    );
+
+    let conversation;
+
+    if (cachedConversation) {
+      conversation = JSON.parse(cachedConversation);
+    } else {
+      // Fetching conversation from DB
+      conversation = await Conversation.find({
+        userId,
+        interviewId: interview._id,
+      });
+
+      await client.setEx(
+        `user:${userId}:interview:${id}:history`,
+        60 * 10,
+        JSON.stringify(conversation)
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Interview Details Fetched Successfully",
+      data: {
+        id,
+        status: interview.status,
+        conversation,
+      },
+    });
+  } catch (error) {
+    console.log("Error at getInterview controller :", error.message);
+    res.status(500).json({
+      success: true,
       message: "Internal Server Error",
       data: {},
     });

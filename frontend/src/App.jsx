@@ -4,6 +4,7 @@ import { PrivateRoute, PublicRoute } from "./components";
 import Loader from "./pages/loader";
 
 const LoginPage = lazy(() => import("./pages/login-page"));
+const Homepage = lazy(() => import("./pages/home-page"));
 const StartInterview = lazy(() => import("./pages/start-interview"));
 const InterviewPage = lazy(() => import("./pages/interview-page"));
 const AnalysisPage = lazy(() => import("./pages/analysis-page"));
@@ -24,12 +25,20 @@ const App = () => {
           path="/"
           element={
             <PrivateRoute>
+              <Homepage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/start-interview"
+          element={
+            <PrivateRoute>
               <StartInterview />
             </PrivateRoute>
           }
         />
         <Route
-          path="/interview"
+          path="/interview/:id"
           element={
             <PrivateRoute>
               <InterviewPage />
@@ -37,7 +46,7 @@ const App = () => {
           }
         />
         <Route
-          path="/analysis"
+          path="/analysis/:id"
           element={
             <PrivateRoute>
               <AnalysisPage />

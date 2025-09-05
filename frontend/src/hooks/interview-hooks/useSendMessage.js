@@ -1,5 +1,11 @@
 import { useState } from "react";
 import useInterviewStore from "../../zustand/interview-store";
+import * as z from "zod";
+import toast from "react-hot-toast";
+
+const messageSchema = z.object({
+  message: z.string("Invalid Response"),
+});
 
 const useSendMessage = () => {
   const [loading, setLoading] = useState(false);
@@ -8,9 +14,11 @@ const useSendMessage = () => {
 
   const sendMessage = async (message) => {
     try {
-      if (!message.trim()) {
-        console.error("Invalid Message");
-        return;
+      const result = messageSchema.safeParse({ message });
+
+      if (!result.success) {
+        const errMsg = result.error.issues[0].message;
+        throw new Error("Invalid Message");
       }
 
       addMessage({ role: "user", text: message });
@@ -23,19 +31,18 @@ const useSendMessage = () => {
         body: JSON.stringify({ message }),
       });
 
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error(data);
+      const AiResponse = await res.json();
+      if (!AiResponse.success) {
+        throw new Error(AiResponse.message);
       }
-      console.log(data);
 
-      addMessage({ role: "ai", text: data.data.text });
-      if (data.data.isFinal) {
+      addMessage({ role: "ai", text: AiResponse.data.text });
+      if (AiResponse.data.isFinal) {
         setInterviewStatus(false);
       }
-      return data.data.text;
+      return AiResponse.data.text;
     } catch (error) {
-      console.error("Error Occurred : ", error);
+      toast.error("Error Occurred : ", error.message);
     } finally {
       setLoading(false);
     }

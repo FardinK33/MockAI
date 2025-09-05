@@ -27,6 +27,11 @@ const interviewSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    status: {
+      type: String,
+      enum: ["active", "completed", "pending"],
+      default: "pending",
+    },
     date: {
       type: Date,
       default: Date.now,

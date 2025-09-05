@@ -6,6 +6,7 @@ import {
 } from "../utils/prompt.js";
 import { config } from "./env-config.js";
 import client from "./redis-config.js";
+import redisUtils from "../utils/redis-utils.js";
 
 const ai = new GoogleGenAI({
   apiKey: config.GEMINI_KEY,
@@ -15,7 +16,7 @@ export async function getAIResponse(userId, interviewId, userMessage, prompt) {
   // Retrieving the Session history with user id to continue interview with context
   let history = [];
   const cachedHistory = await client.get(
-    `user:${userId}:interview:${interviewId}:history`
+    redisUtils.getHistoryKey(userId, interviewId)
   );
   if (cachedHistory) history = JSON.parse(cachedHistory);
 
@@ -37,7 +38,7 @@ export async function getAIResponse(userId, interviewId, userMessage, prompt) {
   history.push({ role: "model", parts: [{ text: response.text }] });
 
   await client.setEx(
-    `user:${userId}:interview:${interviewId}:history`,
+    redisUtils.getHistoryKey(userId, interviewId),
     60 * 30,
     JSON.stringify(history)
   );
@@ -54,7 +55,7 @@ export async function generateAnalysis(userId, interviewId) {
     analysisPrompt
   );
 
-  await client.del(`user:${userId}:interview:${interviewId}:history`);
+  await client.del(redisUtils.getHistoryKey(userId, interviewId));
 
   return aiResponse;
 }

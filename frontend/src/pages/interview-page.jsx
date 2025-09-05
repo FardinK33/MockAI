@@ -32,8 +32,8 @@ const InterviewPage = () => {
         </div>
         <div className="flex-1 flex flex-col justify-around items-center gap-2 h-full rounded-3xl overflow-y-auto">
           <div className=" w-full h-[100%] rounded-xl flex flex-col justify-center items-center relative overflow-hidden">
-            <div class="absolute inset-0 -z-10">
-              <div class="absolute inset-0 z-0 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_50%,#000_20%,#63e_100%)]"></div>
+            <div className="absolute inset-0 -z-10">
+              <div className="absolute inset-0 z-0 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_50%,#000_20%,#63e_100%)]"></div>
             </div>
             <div className="p-5 rounded-full bg-gradient-to-b from-violet-800 to-pink-800 flex items-center justify-center text-whitesmoke text-3xl md:text-5xl shadow-sm shadow-muted-foreground">
               <RiRobot3Line />
