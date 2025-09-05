@@ -3,12 +3,15 @@ import { Button, ListItem } from "../components";
 import useLogout from "../hooks/auth-hooks/useLogout";
 import useGetInterviews from "../hooks/interview-hooks/useGetInterviews";
 import useUserStore from "../zustand/user-store";
+import { useAuthContext } from "../context/auth-context";
+import { FaHandSparkles } from "react-icons/fa";
 
 const Homepage = () => {
   const navigate = useNavigate();
   const { loading: isLogout, logout } = useLogout();
   const { loading } = useGetInterviews();
   const previousInterviews = useUserStore((state) => state.previousInterviews);
+  const { authUser } = useAuthContext();
 
   const handleLogout = async () => {
     await logout();
@@ -21,7 +24,10 @@ const Homepage = () => {
         <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
       </div>
       {/* Logout Button */}
-      <div className="flex justify-end w-full items-center z-10">
+      <div className="flex justify-between w-full items-center z-10">
+        <div className="border-b-2 shadow-2xs shadow-accent border-neutral-800 text-white/80 font-medium font-general-sans rounded-sm p-2 px-4 flex items-center justify-center gap-3">
+          <FaHandSparkles /> Hi, {authUser.name}
+        </div>
         <Button
           disabled={isLogout}
           className="border border-neutral-800 text-white/80 hover:bg-neutral-800 font-medium font-general-sans rounded-md p-2 px-4"
