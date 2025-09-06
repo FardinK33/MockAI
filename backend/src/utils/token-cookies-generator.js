@@ -10,7 +10,7 @@ const generateTokenAndCookie = (userId, res) => {
     res.cookie("jwt", token, {
       maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days
       httpOnly: true,
-      sameSite: "strict",
+      sameSite: "none",
       secure: process.env.NODE_ENV === "production",
       path: "/",
     });
