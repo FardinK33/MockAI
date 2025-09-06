@@ -12,6 +12,7 @@ app.use(
   cors({
     origin: ["https://mock-ai-phi.vercel.app"],
     methods: ["GET", "POST"],
+    credentials: true,
   })
 );
 app.use(express.json());

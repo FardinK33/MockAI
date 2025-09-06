@@ -18,6 +18,7 @@ const useStopInterview = () => {
         `https://mockai-i25k.onrender.com/api/interview/${currentInterviewId}/stop-interview`,
         {
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           method: "POST",
         }
       );

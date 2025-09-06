@@ -46,6 +46,7 @@ export const useInterviewController = () => {
             {
               method: "GET",
               headers: { "Content-Type": "application/json" },
+              credentials: "include",
             }
           );
 
